@@ -1,3 +1,10 @@
 {
-  "refunds": []
+  "refunds": [
+    {
+      "id": "fb5db2d5-805b-4d82-9249-1a7b3c120d43",
+      "name": "Almoço",
+      "category": "food",
+      "amount": "125"
+    }
+  ]
 }
