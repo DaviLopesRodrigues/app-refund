@@ -1,10 +1,34 @@
 {
   "refunds": [
     {
-      "id": "1c628ad4-8336-43ed-8d61-5a5ab75962d2",
-      "name": "Uber",
+      "id": "2ca7edfe-bc6f-4465-bfab-59acd8fa1725",
+      "name": "Hotel",
       "category": "food",
       "amount": 80
+    },
+    {
+      "id": "ef4fa89e-db07-48ef-87cc-7ad5b6dc1638",
+      "name": "Hotel",
+      "category": "services",
+      "amount": 80
+    },
+    {
+      "id": "61c82a1f-e445-438c-97e9-55e3a2ae5801",
+      "name": "Hotel",
+      "category": "food",
+      "amount": 80
+    },
+    {
+      "id": "2b1e26e0-4905-48ba-8f1d-9d020ff61348",
+      "name": "Uber",
+      "category": "accommodation",
+      "amount": 18
+    },
+    {
+      "id": "b8f6aefb-a1a5-431f-b17d-328c9b10b972",
+      "name": "Uber",
+      "category": "accommodation",
+      "amount": 10
     }
   ]
 }

@@ -15,25 +15,45 @@ class Refund {
                 },
                 body: JSON.stringify(propsRefund)
             });
-
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
+            const { ok, status, statusText } = response;
+            if (!ok) {
+                throw new Error(`Erro ao criar item (${statusText} ${status})`);
             }
         } catch (error) {
-            console.log("Erro ao criar item:", error)
+            console.error(error)
+            throw error;
         }
     }
 
     static async fetchRefunds() {
-        const response = await fetch("http://localhost:3333/refunds").then((res) => res.json());
-        return response;
+        try {
+            const response = await fetch("http://localhost:3333/refunds")
+            const { ok, status, statusText } = response;
+            if (!ok) {
+                throw new Error(`Erro ao listar items (${statusText} ${status})`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
 
     static async deleteRefund(id) {
-        const response = await fetch(`http://localhost:3333/refunds/${id}`, {
-            method: "DELETE"
-        })
-        return response;
+        try {
+            const response = await fetch(`http://localhost:3333/refunds/${id}`, {
+                method: "DELETE"
+            })
+
+            const { ok, status, statusText } = response;
+            if (!ok) {
+                throw new Error(`Erro ao deletar item (${statusText} ${status})`);
+            }
+            return response;
+        } catch (error) {
+            console.error(error);
+            throw error
+        }
     }
 }
 
