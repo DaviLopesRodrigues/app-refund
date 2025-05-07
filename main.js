@@ -1,15 +1,26 @@
 import { Refund } from "./modules/refund.js";
 import { formattedAmount } from "./modules/formattedAmount.js";
+import { Alerts } from "./modules/alerts.js";
 
 const expenseName = document.getElementById("expense");
 const expenseCategory = document.getElementById("category");
 const expenseAmout = document.getElementById("amount");
 const form = document.querySelector("form");
+const refundList = document.querySelector("ul");
+const refundRequestCounter = document.querySelector("aside header p span");
+const totalRefundAmount = document.querySelector("aside header h2");
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const refund = new Refund(expenseName.value, expenseCategory.value, parseFloat(expenseAmout.value));
-    await Refund.createRefund(refund);
+    try {
+        await Refund.createRefund(refund);
+    } catch (error) {
+        Alerts.toast({
+            icon: "error",
+            title: error
+        })
+    }
 })
 
 const categoryInfos = {
@@ -35,79 +46,73 @@ const categoryInfos = {
     },
 }
 
-const Toast = Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 30000,
-    timerProgressBar: true,
-    // didOpen: (toast) => {
-    //     toast.addEventListener("mouseenter", Swal.stopTimer);
-    //     toast.addEventListener("mouseleave", Swal.resumeTimer);
-    // }
-});
-
 async function renderAllRefunds() {
 
-    const refundList = document.querySelector("ul");
+    try {
+        const response = await Refund.fetchRefunds();
 
-    const res = await Refund.fetchRefunds();
-    console.log(res);
-    res.map((refund) => {
-        const listItem = document.createElement("li");
-        listItem.classList.add("expense");
-        listItem.dataset.id = refund.id
+        response.forEach((refund) => {
+            const listItem = document.createElement("li");
+            listItem.classList.add("expense");
+            listItem.dataset.id = refund.id
 
-        const categoryIcon = document.createElement("img");
-        categoryIcon.setAttribute("src", `${categoryInfos?.[refund.category]?.icon}`)
+            const categoryIcon = document.createElement("img");
+            categoryIcon.setAttribute("src", `${categoryInfos?.[refund.category]?.icon}`)
 
-        const refundExpenseInfo = document.createElement("div");
-        refundExpenseInfo.classList.add("expense-info")
-        const expenseNameItem = document.createElement("strong");
-        expenseNameItem.textContent = `${refund.name}`
-        const expenseCategoryItem = document.createElement("span");
-        expenseCategoryItem.textContent = `${categoryInfos?.[refund.category]?.option_value}`
-        refundExpenseInfo.append(expenseNameItem, expenseCategoryItem);
+            const refundExpenseInfo = document.createElement("div");
+            refundExpenseInfo.classList.add("expense-info")
 
-        const refundExpenseAmount = document.createElement("span");
-        refundExpenseAmount.classList.add("expense-amount");
-        const currencySymbol = document.createElement("small");
-        currencySymbol.textContent = `R$`
-        refundExpenseAmount.textContent = `${formattedAmount(refund.amount).replace("R$", "")}`
+            const expenseNameItem = document.createElement("strong");
+            expenseNameItem.textContent = `${refund.name}`
 
-        refundExpenseAmount.prepend(currencySymbol)
+            const expenseCategoryItem = document.createElement("span");
+            expenseCategoryItem.textContent = `${categoryInfos?.[refund.category]?.option_value}`
+            refundExpenseInfo.append(expenseNameItem, expenseCategoryItem);
 
-        const removeRefundItemIcon = document.createElement("img");
-        removeRefundItemIcon.classList.add("remove-icon");
-        removeRefundItemIcon.setAttribute("src", "img/remove.svg")
-        removeRefundItemIcon.addEventListener("click", async () => {
-            const result = await Swal.fire({
-                title: "Você tem certeza que deseja excluir?",
-                showCancelButton: true,
-                cancelButtonText: "Cancelar",
-                cancelButtonColor: "#696969",
+            const refundExpenseAmount = document.createElement("span");
+            refundExpenseAmount.classList.add("expense-amount");
 
-                confirmButtonText: "Sim",
-                confirmButtonColor: "#1f8459"
+            const currencySymbol = document.createElement("small");
+            currencySymbol.textContent = `R$`
+            refundExpenseAmount.textContent = `${formattedAmount(refund.amount).replace("R$", "")}`
+
+            refundExpenseAmount.prepend(currencySymbol)
+
+            const removeRefundItemIcon = document.createElement("img");
+            removeRefundItemIcon.classList.add("remove-icon");
+            removeRefundItemIcon.setAttribute("src", "img/remove.svg")
+            removeRefundItemIcon.addEventListener("click", async () => {
+
+                try {
+                    const result = await Alerts.confirmDelete();
+                    const { isConfirmed } = result;
+
+                    if (isConfirmed) {
+                        await Refund.deleteRefund(refund.id);
+                        listItem.remove();
+                    }
+                } catch (error) {
+                    Alerts.toast({
+                        icon: "error",
+                        title: error
+                    })
+                }
+
             })
-
-            if (result.isConfirmed) {
-                await Refund.deleteRefund(refund.id);
-                listItem.remove();
-            }
+            listItem.append(categoryIcon, refundExpenseInfo, refundExpenseAmount, removeRefundItemIcon);
+            refundList.append(listItem);
         })
-        listItem.append(categoryIcon, refundExpenseInfo, refundExpenseAmount, removeRefundItemIcon);
-        refundList.append(listItem);
-    })
-    refundSummary(res);
+        refundSummary(response);
+    } catch (error) {
+        Alerts.toast({
+            icon: "error",
+            title: error
+        })
+    }
 }
 
 async function refundSummary(data) {
-    const refundRequestCounter = document.querySelector("aside header p span");
-
     refundRequestCounter.textContent = `${data.length} ${data.length <= 1 ? "despesa" : "despesas"}`
-
-    const totalRefundAmount = document.querySelector("aside header h2");
 
     const total = data.reduce((sum, current) => {
         const amount = parseFloat(
