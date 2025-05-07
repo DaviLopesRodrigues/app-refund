@@ -6,12 +6,10 @@ const expenseCategory = document.getElementById("category");
 const expenseAmout = document.getElementById("amount");
 const form = document.querySelector("form");
 
-
-
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const refund = new Refund(expenseName.value, expenseCategory.value, parseFloat(expenseAmout.value));
-    Refund.createRefund(refund);
+    await Refund.createRefund(refund);
 })
 
 const categoryInfos = {
@@ -37,6 +35,18 @@ const categoryInfos = {
     },
 }
 
+const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 30000,
+    timerProgressBar: true,
+    // didOpen: (toast) => {
+    //     toast.addEventListener("mouseenter", Swal.stopTimer);
+    //     toast.addEventListener("mouseleave", Swal.resumeTimer);
+    // }
+});
+
 async function renderAllRefunds() {
 
     const refundList = document.querySelector("ul");
@@ -46,6 +56,7 @@ async function renderAllRefunds() {
     res.map((refund) => {
         const listItem = document.createElement("li");
         listItem.classList.add("expense");
+        listItem.dataset.id = refund.id
 
         const categoryIcon = document.createElement("img");
         categoryIcon.setAttribute("src", `${categoryInfos?.[refund.category]?.icon}`)
@@ -69,19 +80,29 @@ async function renderAllRefunds() {
         const removeRefundItemIcon = document.createElement("img");
         removeRefundItemIcon.classList.add("remove-icon");
         removeRefundItemIcon.setAttribute("src", "img/remove.svg")
+        removeRefundItemIcon.addEventListener("click", async () => {
+            const result = await Swal.fire({
+                title: "Você tem certeza que deseja excluir?",
+                showCancelButton: true,
+                cancelButtonText: "Cancelar",
+                cancelButtonColor: "#696969",
 
+                confirmButtonText: "Sim",
+                confirmButtonColor: "#1f8459"
+            })
+
+            if (result.isConfirmed) {
+                await Refund.deleteRefund(refund.id);
+                listItem.remove();
+            }
+        })
         listItem.append(categoryIcon, refundExpenseInfo, refundExpenseAmount, removeRefundItemIcon);
-
         refundList.append(listItem);
-
     })
+    refundSummary(res);
 }
 
-renderAllRefunds();
-
-async function refundSummary() {
-    const data = await Refund.fetchRefunds()
-
+async function refundSummary(data) {
     const refundRequestCounter = document.querySelector("aside header p span");
 
     refundRequestCounter.textContent = `${data.length} ${data.length <= 1 ? "despesa" : "despesas"}`
@@ -98,4 +119,5 @@ async function refundSummary() {
 
     totalRefundAmount.innerHTML = formattedAmount(total).replace("R$", "<small>R$</small>");
 }
-refundSummary();
+
+renderAllRefunds();

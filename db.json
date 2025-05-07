@@ -1,22 +1,10 @@
 {
   "refunds": [
     {
-      "id": "6a8cd31b-45b7-4baa-8889-87900b86fd83",
-      "name": "Almoço",
+      "id": "1c628ad4-8336-43ed-8d61-5a5ab75962d2",
+      "name": "Uber",
       "category": "food",
       "amount": 80
-    },
-    {
-      "id": "751136d1-71f8-47cf-85e7-78a2aa0a24a7",
-      "name": "Hotel",
-      "category": "accommodation",
-      "amount": 300
-    },
-    {
-      "id": "c5b4d017-e6ee-4512-8f6a-a1fc040572af",
-      "name": "Jantar",
-      "category": "food",
-      "amount": 125
     }
   ]
 }

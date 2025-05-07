@@ -129,7 +129,7 @@ select:focus {
   max-width: 154px;
 }
 
-form button {
+form #button-submit {
   height: 3rem;
   border-radius: 0.5rem;
   border: none;
@@ -143,7 +143,7 @@ form button {
   transition: background-color 0.2s;
 }
 
-button:hover {
+#button-submit:hover {
   background-color: #2cb178;
 }
 
@@ -170,6 +170,7 @@ aside header {
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
 }
+
 aside header p {
   color: #4d5c57;
   font-weight: 400;
@@ -225,7 +226,7 @@ aside ul {
   margin-right: 0.75rem;
 }
 
-.expense > div {
+.expense>div {
   display: flex;
   flex-direction: column;
   flex: 1;

@@ -28,6 +28,13 @@ class Refund {
         const response = await fetch("http://localhost:3333/refunds").then((res) => res.json());
         return response;
     }
+
+    static async deleteRefund(id) {
+        const response = await fetch(`http://localhost:3333/refunds/${id}`, {
+            method: "DELETE"
+        })
+        return response;
+    }
 }
 
 export { Refund };
