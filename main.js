@@ -11,122 +11,137 @@ const refundRequestCounter = document.querySelector("aside header p span");
 const totalRefundAmount = document.querySelector("aside header h2");
 
 form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const refund = new Refund(expenseName.value, expenseCategory.value, parseFloat(expenseAmout.value));
-    try {
-        await Refund.createRefund(refund);
-    } catch (error) {
-        Alerts.toast({
-            icon: "error",
-            title: error
-        })
-    }
-})
+  event.preventDefault();
+
+  try {
+    const refund = new Refund(
+      expenseName.value,
+      expenseCategory.value,
+      parseFloat(expenseAmout.value)
+    );
+    await Refund.createRefund(refund);
+  } catch (error) {
+    Alerts.toast({
+      icon: "error",
+      title: error,
+    });
+  }
+});
 
 const categoryInfos = {
-    food: {
-        icon: "img/food.svg",
-        option_value: "Alimentação"
-    },
-    accommodation: {
-        icon: "img/accommodation.svg",
-        option_value: "Hospedagem"
-    },
-    services: {
-        icon: "img/services.svg",
-        option_value: "Serviços"
-    },
-    transport: {
-        icon: "img/transport.svg",
-        option_value: "Transporte"
-    },
-    others: {
-        icon: "img/others.svg",
-        option_value: "Outros"
-    },
-}
+  food: {
+    icon: "img/food.svg",
+    option_value: "Alimentação",
+  },
+  accommodation: {
+    icon: "img/accommodation.svg",
+    option_value: "Hospedagem",
+  },
+  services: {
+    icon: "img/services.svg",
+    option_value: "Serviços",
+  },
+  transport: {
+    icon: "img/transport.svg",
+    option_value: "Transporte",
+  },
+  others: {
+    icon: "img/others.svg",
+    option_value: "Outros",
+  },
+};
 
 async function renderAllRefunds() {
-
-    try {
-        const response = await Refund.fetchRefunds();
-        await createRefundItem(response)
-        refundSummary(response);
-    } catch (error) {
-        Alerts.toast({
-            icon: "error",
-            title: error
-        })
-    }
+  try {
+    const response = await Refund.fetchRefunds();
+    await createRefundItem(response);
+    refundSummary(response);
+  } catch (error) {
+    Alerts.toast({
+      icon: "error",
+      title: error,
+    });
+  }
 }
 
 async function createRefundItem(listRefunds) {
-    listRefunds.forEach((refund) => {
-        const { id, category, amount, name } = refund
-        const listItem = document.createElement("li");
-        listItem.classList.add("expense");
-        listItem.dataset.id = id;
+  listRefunds.forEach((refund) => {
+    const { id, category, amount, name } = refund;
+    const listItem = document.createElement("li");
+    listItem.classList.add("expense");
+    listItem.dataset.id = id;
 
-        const categoryIcon = document.createElement("img");
-        categoryIcon.setAttribute("src", `${categoryInfos?.[category]?.icon}`)
+    const categoryIcon = document.createElement("img");
+    categoryIcon.setAttribute("src", `${categoryInfos?.[category]?.icon}`);
 
-        const refundExpenseInfo = document.createElement("div");
-        refundExpenseInfo.classList.add("expense-info")
+    const refundExpenseInfo = document.createElement("div");
+    refundExpenseInfo.classList.add("expense-info");
 
-        const expenseNameItem = document.createElement("strong");
-        expenseNameItem.textContent = `${name}`
+    const expenseNameItem = document.createElement("strong");
+    expenseNameItem.textContent = `${name}`;
 
-        const expenseCategoryItem = document.createElement("span");
-        expenseCategoryItem.textContent = `${categoryInfos?.[category]?.option_value}`
-        refundExpenseInfo.append(expenseNameItem, expenseCategoryItem);
+    const expenseCategoryItem = document.createElement("span");
+    expenseCategoryItem.textContent = `${categoryInfos?.[category]?.option_value}`;
+    refundExpenseInfo.append(expenseNameItem, expenseCategoryItem);
 
-        const refundExpenseAmount = document.createElement("span");
-        refundExpenseAmount.classList.add("expense-amount");
+    const refundExpenseAmount = document.createElement("span");
+    refundExpenseAmount.classList.add("expense-amount");
 
-        const currencySymbol = document.createElement("small");
-        currencySymbol.textContent = `R$`
-        refundExpenseAmount.textContent = `${formattedAmount(amount).replace("R$", "")}`
+    const currencySymbol = document.createElement("small");
+    currencySymbol.textContent = `R$`;
+    refundExpenseAmount.textContent = `${formattedAmount(amount).replace(
+      "R$",
+      ""
+    )}`;
 
-        refundExpenseAmount.prepend(currencySymbol)
+    refundExpenseAmount.prepend(currencySymbol);
 
-        const removeRefundItemIcon = document.createElement("img");
-        removeRefundItemIcon.classList.add("remove-icon");
-        removeRefundItemIcon.setAttribute("src", "img/remove.svg")
-        removeRefundItemIcon.addEventListener("click", async () => {
+    const removeRefundItemIcon = document.createElement("img");
+    removeRefundItemIcon.classList.add("remove-icon");
+    removeRefundItemIcon.setAttribute("src", "img/remove.svg");
+    removeRefundItemIcon.addEventListener("click", async () => {
+      try {
+        const result = await Alerts.confirmDelete();
+        const { isConfirmed } = result;
 
-            try {
-                const result = await Alerts.confirmDelete();
-                const { isConfirmed } = result;
-
-                if (isConfirmed) {
-                    await Refund.deleteRefund(refund.id);
-                    listItem.remove();
-                }
-            } catch (error) {
-                Alerts.toast({
-                    icon: "error",
-                    title: error
-                })
-            }
-
-        })
-        listItem.append(categoryIcon, refundExpenseInfo, refundExpenseAmount, removeRefundItemIcon);
-        refundList.append(listItem);
-    })
+        if (isConfirmed) {
+          await Refund.deleteRefund(refund.id);
+          listItem.remove();
+        }
+      } catch (error) {
+        Alerts.toast({
+          icon: "error",
+          title: error,
+        });
+      }
+    });
+    listItem.append(
+      categoryIcon,
+      refundExpenseInfo,
+      refundExpenseAmount,
+      removeRefundItemIcon
+    );
+    refundList.append(listItem);
+  });
 }
 
 async function refundSummary(data) {
-    refundRequestCounter.textContent = `${data.length} ${data.length <= 1 ? "despesa" : "despesas"}`
+  refundRequestCounter.textContent = `${data.length} ${
+    data.length <= 1 ? "despesa" : "despesas"
+  }`;
 
-    const total = data.reduce((sum, current) => {
-        const amount = parseFloat(
-            current.amount.toString().replace(".", "").replace(",", ".")
-        );
+  const total = data.reduce((sum, current) => {
+    const amount = parseFloat(
+      current.amount.toString().replace(".", "").replace(",", ".")
+    );
 
-        return sum + amount;
-    }, 0)
+    return sum + amount;
+  }, 0);
 
-    totalRefundAmount.innerHTML = formattedAmount(total).replace("R$", "<small>R$</small>");
+  totalRefundAmount.innerHTML = formattedAmount(total).replace(
+    "R$",
+    "<small>R$</small>"
+  );
 }
 
 renderAllRefunds();
