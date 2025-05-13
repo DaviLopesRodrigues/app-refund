@@ -1,5 +1,8 @@
 import { Refund } from "./modules/refund.js";
-import { formattedAmount } from "./modules/formattedAmount.js";
+import {
+  formattedAmount,
+  formattedAmountNumber,
+} from "./modules/formattedAmount.js";
 import { Alerts } from "./modules/alerts.js";
 
 const expenseName = document.getElementById("expense");
@@ -10,14 +13,27 @@ const refundList = document.querySelector("ul");
 const refundRequestCounter = document.querySelector("aside header p span");
 const totalRefundAmount = document.querySelector("aside header h2");
 
+expenseAmout.addEventListener("input", () => {
+  let value = expenseAmout.value.replace(/\D/g, "");
+  value = Number(value) / 100;
+  expenseAmout.value = formattedAmount(value);
+});
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  if (!expenseName.value || !expenseCategory.value || !expenseAmout.value) {
+    return Alerts.toast({
+      icon: "warning",
+      title: "Preencha todos os campos antes de enviar.",
+    });
+  }
 
   try {
     const refund = new Refund(
       expenseName.value,
       expenseCategory.value,
-      parseFloat(expenseAmout.value)
+      formattedAmountNumber(expenseAmout.value)
     );
     await Refund.createRefund(refund);
   } catch (error) {
@@ -131,11 +147,7 @@ async function refundSummary(data) {
   }`;
 
   const total = data.reduce((sum, current) => {
-    const amount = parseFloat(
-      current.amount.toString().replace(".", "").replace(",", ".")
-    );
-
-    return sum + amount;
+    return sum + current.amount;
   }, 0);
 
   totalRefundAmount.innerHTML = formattedAmount(total).replace(
