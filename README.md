@@ -51,6 +51,18 @@ Aplicação Web desenvolvida para registrar, listar e excluir solicitações de 
 
 ---
 
+### 🌱 Git e GitHub
+
+- Utilização de **Git** para controle de versão
+- Criação e organização de **branches**:
+  - `main`: branch principal de produção
+  - `develop`: branch de desenvolvimento
+- Commits semânticos e frequentes
+- Integração com repositório remoto no **GitHub**
+- Boas práticas de versionamento e fluxo de trabalho em equipe
+
+---
+
 ## 🧪 Como Rodar o Projeto Localmente
 
 - Certifique-se de ter o Node.js instalado
