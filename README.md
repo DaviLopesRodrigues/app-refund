@@ -51,7 +51,7 @@ Aplicação Web desenvolvida para registrar, listar e excluir solicitações de 
 
 ---
 
-### 🌱 Git e GitHub
+### 🌱 Versionamento de Código (Git e GitHub)
 
 - Utilização de **Git** para controle de versão
 - Criação e organização de **branches**:
